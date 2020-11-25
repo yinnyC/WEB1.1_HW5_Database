@@ -53,14 +53,16 @@ def create():
 @app.route('/plant/<plant_id>')
 def detail(plant_id):
     """Display the plant detail page & process data from the harvest form."""
-
-    plant_to_show = mongo.db.plants.find_one({'_id': ObjectId(plant_id)})
-    harvests = mongo.db.harvests.find({'plant_id': plant_id})
-    context = {
-        'plant': plant_to_show,
-        'harvests': harvests
-    }
-    return render_template('detail.html', **context)
+    try:
+        plant_to_show = mongo.db.plants.find_one({'_id': ObjectId(plant_id)})
+        harvests = mongo.db.harvests.find({'plant_id': plant_id})
+        context = {
+            'plant': plant_to_show,
+            'harvests': harvests
+        }
+        return render_template('detail.html', **context)
+    except:
+        return render_template('404.html')
 
 
 @app.route('/harvest/<plant_id>', methods=['POST'])
@@ -104,12 +106,8 @@ def edit(plant_id):
 
 @app.route('/delete/<plant_id>', methods=['POST'])
 def delete(plant_id):
-    # TODO: Make a `delete_one` database call to delete the plant with the given
-    # id.
-
-    # TODO: Also, make a `delete_many` database call to delete all harvests with
-    # the given plant id.
-
+    plant_todelete = mongo.db.plants.delete_one({'_id': ObjectId(plant_id)})
+    harvests_todelete = mongo.db.harvests.delete_many({'plant_id': plant_id})
     return redirect(url_for('plants_list'))
 
 
